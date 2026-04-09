@@ -1,9 +1,17 @@
 import torch
+import torch.nn as nn
 import numpy as np
 from modules.xfeat import XFeat
 
+class XFeatWrapper(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.model = XFeat()
+    def forward(self, x):
+        return self.model.detect(x)
+
 # 1. Initialize Model
-model = XFeat().eval().cuda()
+model = XFeatWrapper().eval().cuda()
 
 # 2. Create Dummy Input (Standard 640x480 for Jetson)
 dummy_input = torch.randn(1, 1, 480, 640).cuda()
@@ -30,11 +38,12 @@ except ImportError:
 
 prlab@prlab-desktop:~/jetson_camera_project$ /home/prlab/jetson_camera_project/venv/bin/python /home/prlab/jetson_camera_project/xfeat_research/export_xfeat_onnx.py
 loading weights from: /home/prlab/jetson_camera_project/xfeat_research/modules/../weights/xfeat.pt
+2026-04-09 21:12:44.179380279 [W:onnxruntime:Default, device_discovery.cc:164 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:89 ReadFileContents Failed to open file: "/sys/class/drm/card1/device/vendor"
 Exporting xFeat to ONNX (FP32)...
-/home/prlab/jetson_camera_project/xfeat_research/export_xfeat_onnx.py:13: DeprecationWarning: You are using the legacy TorchScript-based ONNX export. Starting in PyTorch 2.9, the new torch.export-based ONNX exporter will be the default. To switch now, set dynamo=True in torch.onnx.export. This new exporter supports features like exporting LLMs with DynamicCache. We encourage you to try it and share feedback to help improve the experience. Learn more about the new export logic: https://pytorch.org/docs/stable/onnx_dynamo.html. For exporting control flow: https://pytorch.org/tutorials/beginner/onnx/export_control_flow_model_to_onnx_tutorial.html.
+/home/prlab/jetson_camera_project/xfeat_research/export_xfeat_onnx.py:21: DeprecationWarning: You are using the legacy TorchScript-based ONNX export. Starting in PyTorch 2.9, the new torch.export-based ONNX exporter will be the default. To switch now, set dynamo=True in torch.onnx.export. This new exporter supports features like exporting LLMs with DynamicCache. We encourage you to try it and share feedback to help improve the experience. Learn more about the new export logic: https://pytorch.org/docs/stable/onnx_dynamo.html. For exporting control flow: https://pytorch.org/tutorials/beginner/onnx/export_control_flow_model_to_onnx_tutorial.html.
   torch.onnx.export(model, dummy_input, "xfeat.onnx",
 Traceback (most recent call last):
-  File "/home/prlab/jetson_camera_project/xfeat_research/export_xfeat_onnx.py", line 13, in <module>
+  File "/home/prlab/jetson_camera_project/xfeat_research/export_xfeat_onnx.py", line 21, in <module>
     torch.onnx.export(model, dummy_input, "xfeat.onnx", 
   File "/home/prlab/.local/lib/python3.10/site-packages/torch/onnx/__init__.py", line 408, in export
     export(
@@ -64,6 +73,8 @@ Traceback (most recent call last):
     return forward_call(*args, **kwargs)
   File "/home/prlab/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1763, in _slow_forward
     result = self.forward(*input, **kwargs)
-  File "/home/prlab/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 399, in _forward_unimplemented
-    raise NotImplementedError(
-NotImplementedError: Module [XFeat] is missing the required "forward" function
+  File "/home/prlab/jetson_camera_project/xfeat_research/export_xfeat_onnx.py", line 11, in forward
+    return self.model.detect(x)
+  File "/home/prlab/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1962, in __getattr__
+    raise AttributeError(
+AttributeError: 'XFeat' object has no attribute 'detect'
