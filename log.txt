@@ -1,48 +1,22 @@
 prlab@prlab-desktop:~/jetson_camera_project/onnx$ /home/prlab/jetson_camera_project/venv/bin/python /home/prlab/jetson_camera_project/onnx/test.py
+/home/prlab/jetson_camera_project/onnx/test.py:28: DeprecationWarning: You are using the legacy TorchScript-based ONNX export. Starting in PyTorch 2.9, the new torch.export-based ONNX exporter will be the default. To switch now, set dynamo=True in torch.onnx.export. This new exporter supports features like exporting LLMs with DynamicCache. We encourage you to try it and share feedback to help improve the experience. Learn more about the new export logic: https://pytorch.org/docs/stable/onnx_dynamo.html. For exporting control flow: https://pytorch.org/tutorials/beginner/onnx/export_control_flow_model_to_onnx_tutorial.html.
+  torch.onnx.export(
 Traceback (most recent call last):
-  File "/home/prlab/jetson_camera_project/onnx/test.py", line 3, in <module>
-    session = ort.InferenceSession("/home/prlab/jetson_camera_project/onnx/model/model.onnx")
-  File "/home/prlab/.local/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 419, in __init__
-    self._create_inference_session(providers, provider_options, disabled_optimizers)
-  File "/home/prlab/.local/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in _create_inference_session
-    sess = C.InferenceSession(session_options, self._model_path, True, self._read_config_from_model)
-prlab@prlab-desktop:~/jetson_camera_project/onnx$ /home/prlab/jetson_camera_project/venv/bin/python /home/prlab/jetson_camera_project/onnx/test.py
+  File "/home/prlab/.local/lib/python3.10/site-packages/torch/onnx/_internal/onnx_proto_utils.py", line 182, in _add_onnxscript_fn
+    import onnx
+ModuleNotFoundError: No module named 'onnx'
+
+The above exception was the direct cause of the following exception:
+
 Traceback (most recent call last):
-  File "/home/prlab/jetson_camera_project/onnx/test.py", line 3, in <module>
-    session = ort.InferenceSession("/home/prlab/jetson_camera_project/onnx/model/model.onnx")
-  File "/home/prlab/.local/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 419, in __init__
-    self._create_inference_session(providers, provider_options, disabled_optimizers)
-  File "/home/prlab/.local/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in _create_inference_session
-    sess = C.InferenceSession(session_options, self._model_path, True, self._read_config_from_model)
-onnxruntime.capi.onnxruntime_pybind11_state.Fail: [ONNXRuntimeError] : 1 : FAIL : Load model from /home/prlab/jetson_camera_project/onnx/model/model.onnx failed:/home/yifanl/onnxruntime/onnxruntime/core/graph/model.cc:164 onnxruntime::Model::Model(onnx::ModelProto&&, const PathString&, const IOnnxRuntimeOpSchemaRegistryList*, const onnxruntime::logging::Logger&, const onnxruntime::ModelOptions&) ModelProto does not have a graph.
-
-import torch
-import torch.nn as nn
-
-# 1. 간단한 모델 정의
-class SimpleModel(nn.Module):
-    def __init__(self):
-        super(SimpleModel, self).__init__()
-        self.fc = nn.Linear(10, 5)
-
-    def forward(self, x):
-        return self.fc(x)
-
-# 2. 모델 생성
-model = SimpleModel()
-model.eval()
-
-# 3. 더미 입력
-dummy_input = torch.randn(1, 10)
-
-# 4. ONNX로 변환
-torch.onnx.export(
-    model,
-    dummy_input,
-    "model.onnx",
-    input_names=["input"],
-    output_names=["output"],
-    opset_version=11
-)
-
-print("model.onnx 생성 완료")
+  File "/home/prlab/jetson_camera_project/onnx/test.py", line 28, in <module>
+    torch.onnx.export(
+  File "/home/prlab/.local/lib/python3.10/site-packages/torch/onnx/__init__.py", line 408, in export
+    export(
+  File "/home/prlab/.local/lib/python3.10/site-packages/torch/onnx/utils.py", line 522, in export
+    _export(
+  File "/home/prlab/.local/lib/python3.10/site-packages/torch/onnx/utils.py", line 1530, in _export
+    proto = onnx_proto_utils._add_onnxscript_fn(
+  File "/home/prlab/.local/lib/python3.10/site-packages/torch/onnx/_internal/onnx_proto_utils.py", line 184, in _add_onnxscript_fn
+    raise errors.OnnxExporterError("Module onnx is not installed!") from e
+torch.onnx.OnnxExporterError: Module onnx is not installed!
