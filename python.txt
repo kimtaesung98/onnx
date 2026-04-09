@@ -1,4 +1,69 @@
-Cannot find module `onnxconverter_common`
-  Looked in these locations:
-  Fallback search path (guessed from importing file with heuristics): ["/home/prlab/jetson_camera_project", "/home/prlab/jetson_camera_project/xfeat_research", "/home/prlab/jetson_camera_project", "/home/prlab", "/home", "/"]
-  Site package path queried from interpreter: ["/home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages", "/home/prlab/.local/lib/python3.10/site-packages", "/usr/local/lib/python3.10/dist-packages", "/usr/lib/python3/dist-packages", "/usr/lib/python3.10/dist-packages"]
+import torch
+import numpy as np
+from modules.xfeat import XFeat
+
+# 1. Initialize Model
+model = XFeat().eval().cuda()
+
+# 2. Create Dummy Input (Standard 640x480 for Jetson)
+dummy_input = torch.randn(1, 1, 480, 640).cuda()
+
+# 3. Export to ONNX
+print("Exporting xFeat to ONNX (FP32)...")
+torch.onnx.export(model, dummy_input, "xfeat.onnx", 
+                  input_names=['input'], output_names=['output'],
+                  opset_version=12)
+
+# 4. Optional: FP16 Conversion (Using ONNX Runtime tools)
+# If you have onnxconverter-common installed:
+# pip3 install onnxconverter-common
+try:
+    from onnxconverter_common import float16
+    import onnx
+    print("Converting to FP16 for Jetson Nano speed boost...")
+    model_onnx = onnx.load("xfeat.onnx")
+    model_fp16 = float16.convert_float_to_float16(model_onnx)
+    onnx.save(model_fp16, "xfeat_fp16.onnx")
+    print("SUCCESS: xfeat_fp16.onnx created!")
+except ImportError:
+    print("Note: Install 'onnxconverter-common' to enable half-precision.")
+
+prlab@prlab-desktop:~/jetson_camera_project$ /home/prlab/jetson_camera_project/venv/bin/python /home/prlab/jetson_camera_project/xfeat_research/export_xfeat_onnx.py
+loading weights from: /home/prlab/jetson_camera_project/xfeat_research/modules/../weights/xfeat.pt
+Exporting xFeat to ONNX (FP32)...
+/home/prlab/jetson_camera_project/xfeat_research/export_xfeat_onnx.py:13: DeprecationWarning: You are using the legacy TorchScript-based ONNX export. Starting in PyTorch 2.9, the new torch.export-based ONNX exporter will be the default. To switch now, set dynamo=True in torch.onnx.export. This new exporter supports features like exporting LLMs with DynamicCache. We encourage you to try it and share feedback to help improve the experience. Learn more about the new export logic: https://pytorch.org/docs/stable/onnx_dynamo.html. For exporting control flow: https://pytorch.org/tutorials/beginner/onnx/export_control_flow_model_to_onnx_tutorial.html.
+  torch.onnx.export(model, dummy_input, "xfeat.onnx",
+Traceback (most recent call last):
+  File "/home/prlab/jetson_camera_project/xfeat_research/export_xfeat_onnx.py", line 13, in <module>
+    torch.onnx.export(model, dummy_input, "xfeat.onnx", 
+  File "/home/prlab/.local/lib/python3.10/site-packages/torch/onnx/__init__.py", line 408, in export
+    export(
+  File "/home/prlab/.local/lib/python3.10/site-packages/torch/onnx/utils.py", line 522, in export
+    _export(
+  File "/home/prlab/.local/lib/python3.10/site-packages/torch/onnx/utils.py", line 1457, in _export
+    graph, params_dict, torch_out = _model_to_graph(
+  File "/home/prlab/.local/lib/python3.10/site-packages/torch/onnx/utils.py", line 1080, in _model_to_graph
+    graph, params, torch_out, module = _create_jit_graph(model, args)
+  File "/home/prlab/.local/lib/python3.10/site-packages/torch/onnx/utils.py", line 964, in _create_jit_graph
+    graph, torch_out = _trace_and_get_graph_from_model(model, args)
+  File "/home/prlab/.local/lib/python3.10/site-packages/torch/onnx/utils.py", line 871, in _trace_and_get_graph_from_model
+    trace_graph, torch_out, inputs_states = torch.jit._get_trace_graph(
+  File "/home/prlab/.local/lib/python3.10/site-packages/torch/jit/_trace.py", line 1403, in _get_trace_graph
+    outs = ONNXTracedModule(
+  File "/home/prlab/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/prlab/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/prlab/.local/lib/python3.10/site-packages/torch/jit/_trace.py", line 138, in forward
+    graph, _out = torch._C._create_graph_by_tracing(
+  File "/home/prlab/.local/lib/python3.10/site-packages/torch/jit/_trace.py", line 129, in wrapper
+    outs.append(self.inner(*trace_inputs))
+  File "/home/prlab/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/prlab/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/prlab/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1763, in _slow_forward
+    result = self.forward(*input, **kwargs)
+  File "/home/prlab/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 399, in _forward_unimplemented
+    raise NotImplementedError(
+NotImplementedError: Module [XFeat] is missing the required "forward" function
