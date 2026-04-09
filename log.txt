@@ -1,0 +1,17 @@
+prlab@prlab-desktop:~/jetson_camera_project/onnx$ /home/prlab/jetson_camera_project/venv/bin/python /home/prlab/jetson_camera_project/onnx/test.py
+Traceback (most recent call last):
+  File "/home/prlab/jetson_camera_project/onnx/test.py", line 3, in <module>
+    session = ort.InferenceSession("/home/prlab/jetson_camera_project/onnx/model/model.onnx")
+  File "/home/prlab/.local/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 419, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/prlab/.local/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in _create_inference_session
+    sess = C.InferenceSession(session_options, self._model_path, True, self._read_config_from_model)
+prlab@prlab-desktop:~/jetson_camera_project/onnx$ /home/prlab/jetson_camera_project/venv/bin/python /home/prlab/jetson_camera_project/onnx/test.py
+Traceback (most recent call last):
+  File "/home/prlab/jetson_camera_project/onnx/test.py", line 3, in <module>
+    session = ort.InferenceSession("/home/prlab/jetson_camera_project/onnx/model/model.onnx")
+  File "/home/prlab/.local/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 419, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/prlab/.local/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 472, in _create_inference_session
+    sess = C.InferenceSession(session_options, self._model_path, True, self._read_config_from_model)
+onnxruntime.capi.onnxruntime_pybind11_state.Fail: [ONNXRuntimeError] : 1 : FAIL : Load model from /home/prlab/jetson_camera_project/onnx/model/model.onnx failed:/home/yifanl/onnxruntime/onnxruntime/core/graph/model.cc:164 onnxruntime::Model::Model(onnx::ModelProto&&, const PathString&, const IOnnxRuntimeOpSchemaRegistryList*, const onnxruntime::logging::Logger&, const onnxruntime::ModelOptions&) ModelProto does not have a graph.
