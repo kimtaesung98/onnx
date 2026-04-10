@@ -1,63 +1,23 @@
-# 9버전을 8버전처럼 보이게 연결합니다.
-sudo ln -s /usr/lib/aarch64-linux-gnu/libcudnn.so.9 /usr/lib/aarch64-linux-gnu/libcudnn.so.8
-sudo ln -s /usr/lib/aarch64-linux-gnu/libcudnn_ops_infer.so.9 /usr/lib/aarch64-linux-gnu/libcudnn_ops_infer.so.8
-sudo ln -s /usr/lib/aarch64-linux-gnu/libcudnn_cnn_infer.so.9 /usr/lib/aarch64-linux-gnu/libcudnn_cnn_infer.so.8
+prlab@prlab-desktop:~/jetson_camera_project$ ls /usr/lib/aarch64-linux-gnu/libcudnn.so.9
+/usr/lib/aarch64-linux-gnu/libcudnn.so.9
+prlab@prlab-desktop:~/jetson_camera_project$ sudo ln -s /usr/lib/aarch64-linux-gnu/libcudnn.so.9 /usr/lib/aarch64-linux-gnu/libcudnn.so.8
+prlab@prlab-desktop:~/jetson_camera_project$ sudo ln -s /usr/lib/aarch64-linux-gnu/libcudnn_ops_infer.so.9 /usr/lib/aarch64-linux-gnu/libcudnn_ops_infer.so.8
+prlab@prlab-desktop:~/jetson_camera_project$ sudo ln -s /usr/lib/aarch64-linux-gnu/libcudnn_cnn_infer.so.9 /usr/lib/aarch64-linux-gnu/libcudnn_cnn_infer.so.8
+prlab@prlab-desktop:~/jetson_camera_project$ sudo ldconfig
+prlab@prlab-desktop:~/jetson_camera_project$ python3 ./xfeat_research/orin_fix_debug.py
+2026-04-10 17:24:39.906435376 [E:onnxruntime:Default, provider_bridge_ort.cc:1532 TryGetProviderInfo_TensorRT] /home/yifanl/onnxruntime/onnxruntime/core/session/provider_bridge_ort.cc:1209 onnxruntime::Provider& onnxruntime::ProviderLibrary::Get() [ONNXRuntimeError] : 1 : FAIL : Failed to load library libonnxruntime_providers_tensorrt.so with error: libnvinfer.so.8: cannot open shared object file: No such file or directory
 
-# 설정 적용
-sudo ldconfig
+*************** EP Error ***************
+EP Error /home/yifanl/onnxruntime/onnxruntime/python/onnxruntime_pybind_state.cc:456 void onnxruntime::python::RegisterTensorRTPluginsAsCustomOps(onnxruntime::python::PySessionOptions&, const ProviderOptions&) Please install TensorRT libraries as mentioned in the GPU requirements page, make sure they're in the PATH or LD_LIBRARY_PATH, and that your GPU is supported.
+ when using ['TensorrtExecutionProvider', 'CUDAExecutionProvider', 'CPUExecutionProvider']
+Falling back to ['CUDAExecutionProvider', 'CPUExecutionProvider'] and retrying.
+****************************************
+2026-04-10 17:24:39.953114436 [E:onnxruntime:Default, provider_bridge_ort.cc:1546 TryGetProviderInfo_CUDA] /home/yifanl/onnxruntime/onnxruntime/core/session/provider_bridge_ort.cc:1209 onnxruntime::Provider& onnxruntime::ProviderLibrary::Get() [ONNXRuntimeError] : 1 : FAIL : Failed to load library libonnxruntime_providers_cuda.so with error: /usr/lib/aarch64-linux-gnu/libcudnn.so.8: version `libcudnn.so.8' not found (required by /home/prlab/.local/lib/python3.10/site-packages/onnxruntime/capi/libonnxruntime_providers_cuda.so)
 
-import cv2
-import numpy as np
-import onnxruntime as ort
-import time
-
-# 라이브러리 경로 강제 지정
-import os
-os.environ['LD_LIBRARY_PATH'] = '/usr/lib/aarch64-linux-gnu:' + os.environ.get('LD_LIBRARY_PATH', '')
-
-providers = ['TensorrtExecutionProvider', 'CUDAExecutionProvider', 'CPUExecutionProvider']
-session = ort.InferenceSession("xfeat_fp16.onnx", providers=providers)
-print(f"--- 활성화된 엔진: {session.get_providers()[0]} ---")
-
-cap = cv2.VideoCapture(0)
-
-while True:
+2026-04-10 17:24:39.953272201 [W:onnxruntime:Default, onnxruntime_pybind_state.cc:861 CreateExecutionProviderInstance] Failed to create CUDAExecutionProvider. Please reference https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html#requirementsto ensure all dependencies are met.
+--- 활성화된 엔진: CPUExecutionProvider ---
+[ WARN:0] global ./modules/videoio/src/cap_gstreamer.cpp (1100) open OpenCV | GStreamer warning: Cannot query video position: status=0, value=-1, duration=-1
+^CTraceback (most recent call last):
+  File "/home/prlab/jetson_camera_project/./xfeat_research/orin_fix_debug.py", line 17, in <module>
     ret, frame = cap.read()
-    if not ret: break
-    
-    # [1] 모델 해상도 640x480에 맞춤
-    frame_resized = cv2.resize(frame, (640, 480))
-    gray = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2GRAY)
-    input_tensor = (gray.astype(np.float16) / 255.0)[None, None, :, :]
-    
-    # [2] 추론
-    start = time.time()
-    outputs = session.run(None, {'input': input_tensor})
-    dt = time.time() - start
-
-    # [3] 점 그리기 (출력 구조 정밀 해석)
-    try:
-        # xFeat 모델 출력의 0번 인덱스가 좌표인지 확인
-        pts = outputs[0]
-        if len(pts.shape) == 3: pts = pts[0] # [1, N, 2] -> [N, 2]
-
-        # 점이 찍히는지 확인하기 위해 상위 500개를 순회
-        for i in range(min(len(pts), 500)):
-            # xFeat 출력은 보통 [0~1] 사이 값이 아니라 픽셀 좌표값입니다.
-            x, y = int(pts[i][0]), int(pts[i][1])
-            
-            # 좌표가 유효한 범위 내에 있는지 확인 후 그리기
-            if 0 <= x < 640 and 0 <= y < 480:
-                cv2.circle(frame_resized, (x, y), 2, (0, 0, 255), -1)
-    except Exception as e:
-        pass
-
-    fps = 1.0 / dt if dt > 0 else 0
-    cv2.putText(frame_resized, f"FPS: {fps:.1f} ({session.get_providers()[0]})", 
-                (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-    
-    cv2.imshow("Orin Nano xFeat Keypoints", frame_resized)
-    if cv2.waitKey(1) == ord('q'): break
-
-cap.release()
-cv2.destroyAllWindows()
+KeyboardInterrupt
