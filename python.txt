@@ -1,28 +1,61 @@
-import torch
-import torchvision
-
-print("--- Jetson Orin Nano 환경 리포트 ---")
-print(f"PyTorch 버전: {torch.__version__}")
-print(f"TorchVision 버전: {torchvision.__version__}")
-print(f"CUDA 사용 가능 여부: {torch.cuda.is_available()}")
-
-if torch.cuda.is_available():
-    print(f"현재 GPU 장치: {torch.cuda.get_device_name(0)}")
-    # 실제 연산 테스트
-    device = torch.device("cuda")
-    a = torch.ones(5, 5).to(device)
-    print("GPU 연산 테스트 성공!")
-else:
-    print("경고: GPU를 인식하지 못했습니다. 설치 과정을 다시 점검하세요.")
-
+import cv2
+import numpy as np
 import onnxruntime as ort
-print(ort.get_available_providers())
+import time
 
-(venv) prlab@prlab-desktop:~/jetson_camera_project$ /home/prlab/jetson_camera_project/venv/bin/python /home/prlab/jetson_camera_project/test.py
---- Jetson Orin Nano 환경 리포트 ---
-PyTorch 버전: 2.8.0
-TorchVision 버전: 0.23.0
-CUDA 사용 가능 여부: True
-현재 GPU 장치: Orin
-GPU 연산 테스트 성공!
-['TensorrtExecutionProvider', 'CUDAExecutionProvider', 'CPUExecutionProvider']
+# 1. TensorRT 설정 (Orin Nano 전용 최적화)
+providers = [
+    ('TensorrtExecutionProvider', {
+        'device_id': 0,
+        'trt_fp16_enable': True,       # 16비트 양자화 활성화
+        'trt_engine_cache_enable': True, # 다음 실행 시 로딩 속도 향상
+        'trt_engine_cache_path': './'
+    })
+]
+
+print("TensorRT 엔진 로딩 중... (첫 실행 시 1~2분 소요될 수 있습니다)")
+session = ort.InferenceSession("xfeat_fp16.onnx", providers=providers)
+
+# 2. 카메라 및 설정
+cap = cv2.VideoCapture(0)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+
+# 가상의 카메라 파라미터 (거리 계산용)
+K = np.array([[900, 0, 320], [0, 900, 240], [0, 0, 1]], dtype=np.float32)
+
+def preprocess(img):
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    img = img.astype(np.float32) / 255.0
+    return img[None, None, :, :] # (1, 1, 480, 640)
+
+print("실시간 트래킹 시작! 'q'를 누르면 종료합니다.")
+
+while True:
+    ret, frame = cap.read()
+    if not ret: break
+    
+    start = time.time()
+    
+    # --- Inference ---
+    input_tensor = preprocess(frame)
+    # TensorRT는 입력 데이터가 float32여도 내부적으로 FP16으로 계산합니다.
+    outputs = session.run(None, {'input': input_tensor})
+    
+    # outputs[0] = keypoints, outputs[1] = descriptors
+    # (실제 xFeat ONNX 구조에 따라 인덱스를 조정해야 할 수 있습니다)
+    
+    # --- FPS 및 결과 표시 ---
+    dt = time.time() - start
+    fps = 1.0 / dt
+    
+    cv2.putText(frame, f"Orin TensorRT FPS: {fps:.1f}", (20, 50), 
+                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+    
+    cv2.imshow("Jetson Orin Nano xFeat SLAM", frame)
+    
+    if cv2.waitKey(1) == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
