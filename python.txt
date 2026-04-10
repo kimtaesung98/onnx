@@ -10,3 +10,9 @@ try:
     print("✅ 성공: TensorRT 엔진이 정상적으로 로드되었습니다!")
 except Exception as e:
     print(f"❌ 실패: 아직 라이브러리 설정이 필요합니다. 에러: {e}")
+
+prlab@prlab-desktop:~/jetson_camera_project$ pip install --no-cache-dir --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/ onnxruntime-gpu
+Defaulting to user installation because normal site-packages is not writeable
+Looking in indexes: https://pypi.org/simple, https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/
+ERROR: Could not find a version that satisfies the requirement onnxruntime-gpu (from versions: none)
+ERROR: No matching distribution found for onnxruntime-gpu
