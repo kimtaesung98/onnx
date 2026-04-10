@@ -1,6 +1,28 @@
-pip uninstall onnxruntime onnxruntime-gpu
-# JetPack 6.0/6.1 환경의 Python 3.10용 공식 휠 예시입니다.
-pip install --extra-index-url https://google-googlesource.com/onnxruntime onnxruntime-gpu
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+import torch
+import torchvision
+
+print("--- Jetson Orin Nano 환경 리포트 ---")
+print(f"PyTorch 버전: {torch.__version__}")
+print(f"TorchVision 버전: {torchvision.__version__}")
+print(f"CUDA 사용 가능 여부: {torch.cuda.is_available()}")
+
+if torch.cuda.is_available():
+    print(f"현재 GPU 장치: {torch.cuda.get_device_name(0)}")
+    # 실제 연산 테스트
+    device = torch.device("cuda")
+    a = torch.ones(5, 5).to(device)
+    print("GPU 연산 테스트 성공!")
+else:
+    print("경고: GPU를 인식하지 못했습니다. 설치 과정을 다시 점검하세요.")
+
 import onnxruntime as ort
 print(ort.get_available_providers())
+
+(venv) prlab@prlab-desktop:~/jetson_camera_project$ /home/prlab/jetson_camera_project/venv/bin/python /home/prlab/jetson_camera_project/test.py
+--- Jetson Orin Nano 환경 리포트 ---
+PyTorch 버전: 2.8.0
+TorchVision 버전: 0.23.0
+CUDA 사용 가능 여부: True
+현재 GPU 장치: Orin
+GPU 연산 테스트 성공!
+['TensorrtExecutionProvider', 'CUDAExecutionProvider', 'CPUExecutionProvider']
