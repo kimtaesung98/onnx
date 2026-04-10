@@ -1,24 +1,12 @@
-# 가상환경 안에서 기존 패키지 삭제
-pip uninstall onnxruntime-gpu onnxruntime
+pip install --no-cache-dir --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/ onnxruntime-gpu
 
-# NVIDIA JetPack 6 환경(Python 3.10)에 맞는 최신 ONNX Runtime GPU 버전 설치
-# 이 링크는 NVIDIA 공식 가이드에 따른 JetPack 6용 빌드입니다.
-pip install --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/ onnxruntime-gpu
-
-pip install onnxruntime-gpu --extra-index-url https://google-googlesource.com/onnxruntime
-
-import os
-import sys
-
-# Orin의 실제 라이브러리 경로들 (TensorRT 및 CUDA)
-os.environ['LD_LIBRARY_PATH'] = (
-    '/usr/lib/aarch64-linux-gnu:'
-    '/usr/local/cuda/lib64:'
-    '/usr/local/lib:' + 
-    os.environ.get('LD_LIBRARY_PATH', '')
-)
-
-import cv2
-import numpy as np
 import onnxruntime as ort
-import time
+# 사용 가능한 공급자 목록 출력
+print("Available Providers:", ort.get_available_providers())
+
+# 실제 세션 생성 테스트
+try:
+    session = ort.InferenceSession("xfeat_fp16.onnx", providers=['TensorrtExecutionProvider'])
+    print("✅ 성공: TensorRT 엔진이 정상적으로 로드되었습니다!")
+except Exception as e:
+    print(f"❌ 실패: 아직 라이브러리 설정이 필요합니다. 에러: {e}")
