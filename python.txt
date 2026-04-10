@@ -1,18 +1,35 @@
-pip install --no-cache-dir --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/ onnxruntime-gpu
+venv) prlab@prlab-desktop:~/jetson_camera_project/onnx/wheels$ pip install onnxruntime_gpu-1.17.0-cp310-cp310-linux_aarch64.whl
+Processing ./onnxruntime_gpu-1.17.0-cp310-cp310-linux_aarch64.whl
+Requirement already satisfied: coloredlogs in /home/prlab/.local/lib/python3.10/site-packages (from onnxruntime-gpu==1.17.0) (15.0.1)
+Requirement already satisfied: flatbuffers in /home/prlab/.local/lib/python3.10/site-packages (from onnxruntime-gpu==1.17.0) (25.12.19)
+Requirement already satisfied: numpy>=1.26.3 in /home/prlab/.local/lib/python3.10/site-packages (from onnxruntime-gpu==1.17.0) (1.26.4)
+Requirement already satisfied: packaging in /usr/lib/python3/dist-packages (from onnxruntime-gpu==1.17.0) (21.3)
+Requirement already satisfied: protobuf in /home/prlab/.local/lib/python3.10/site-packages (from onnxruntime-gpu==1.17.0) (7.34.1)
+Requirement already satisfied: sympy in /home/prlab/.local/lib/python3.10/site-packages (from onnxruntime-gpu==1.17.0) (1.14.0)
+Requirement already satisfied: humanfriendly>=9.1 in /home/prlab/.local/lib/python3.10/site-packages (from coloredlogs->onnxruntime-gpu==1.17.0) (10.0)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in /home/prlab/.local/lib/python3.10/site-packages (from sympy->onnxruntime-gpu==1.17.0) (1.3.0)
+Installing collected packages: onnxruntime-gpu
+Successfully installed onnxruntime-gpu-1.17.0
 
-import onnxruntime as ort
-# 사용 가능한 공급자 목록 출력
-print("Available Providers:", ort.get_available_providers())
+(venv) prlab@prlab-desktop:~/jetson_camera_project$ /home/prlab/jetson_camera_project/venv/bin/python /home/prlab/jetson_camera_project/xfeat_research/orin_fix_debug.py
+2026-04-10 17:47:45.272395387 [E:onnxruntime:Default, provider_bridge_ort.cc:1532 TryGetProviderInfo_TensorRT] /home/yifanl/onnxruntime/onnxruntime/core/session/provider_bridge_ort.cc:1209 onnxruntime::Provider& onnxruntime::ProviderLibrary::Get() [ONNXRuntimeError] : 1 : FAIL : Failed to load library libonnxruntime_providers_tensorrt.so with error: libnvinfer.so.8: cannot open shared object file: No such file or directory
 
-# 실제 세션 생성 테스트
-try:
-    session = ort.InferenceSession("xfeat_fp16.onnx", providers=['TensorrtExecutionProvider'])
-    print("✅ 성공: TensorRT 엔진이 정상적으로 로드되었습니다!")
-except Exception as e:
-    print(f"❌ 실패: 아직 라이브러리 설정이 필요합니다. 에러: {e}")
+*************** EP Error ***************
+EP Error /home/yifanl/onnxruntime/onnxruntime/python/onnxruntime_pybind_state.cc:456 void onnxruntime::python::RegisterTensorRTPluginsAsCustomOps(onnxruntime::python::PySessionOptions&, const ProviderOptions&) Please install TensorRT libraries as mentioned in the GPU requirements page, make sure they're in the PATH or LD_LIBRARY_PATH, and that your GPU is supported.
+ when using ['TensorrtExecutionProvider', 'CUDAExecutionProvider', 'CPUExecutionProvider']
+Falling back to ['CUDAExecutionProvider', 'CPUExecutionProvider'] and retrying.
+****************************************
+2026-04-10 17:47:45.374963905 [E:onnxruntime:Default, provider_bridge_ort.cc:1546 TryGetProviderInfo_CUDA] /home/yifanl/onnxruntime/onnxruntime/core/session/provider_bridge_ort.cc:1209 onnxruntime::Provider& onnxruntime::ProviderLibrary::Get() [ONNXRuntimeError] : 1 : FAIL : Failed to load library libonnxruntime_providers_cuda.so with error: /usr/lib/aarch64-linux-gnu/libcudnn.so.8: version `libcudnn.so.8' not found (required by /home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/onnxruntime/capi/libonnxruntime_providers_cuda.so)
 
-prlab@prlab-desktop:~/jetson_camera_project$ pip install --no-cache-dir --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/ onnxruntime-gpu
-Defaulting to user installation because normal site-packages is not writeable
-Looking in indexes: https://pypi.org/simple, https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/
-ERROR: Could not find a version that satisfies the requirement onnxruntime-gpu (from versions: none)
-ERROR: No matching distribution found for onnxruntime-gpu
+2026-04-10 17:47:45.375080997 [W:onnxruntime:Default, onnxruntime_pybind_state.cc:861 CreateExecutionProviderInstance] Failed to create CUDAExecutionProvider. Please reference https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html#requirementsto ensure all dependencies are met.
+--- 활성화된 엔진: CPUExecutionProvider ---
+QFontDatabase: Cannot find font directory /home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/cv2/qt/fonts.
+Note that Qt no longer ships fonts. Deploy some (from https://dejavu-fonts.github.io/ for example) or switch to fontconfig.
+QFontDatabase: Cannot find font directory /home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/cv2/qt/fonts.
+Note that Qt no longer ships fonts. Deploy some (from https://dejavu-fonts.github.io/ for example) or switch to fontconfig.
+QFontDatabase: Cannot find font directory /home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/cv2/qt/fonts.
+Note that Qt no longer ships fonts. Deploy some (from https://dejavu-fonts.github.io/ for example) or switch to fontconfig.
+QFontDatabase: Cannot find font directory /home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/cv2/qt/fonts.
+Note that Qt no longer ships fonts. Deploy some (from https://dejavu-fonts.github.io/ for example) or switch to fontconfig.
+QFontDatabase: Cannot find font directory /home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/cv2/qt/fonts.
+Note that Qt no longer ships fonts. Deploy some (from https://dejavu-fonts.github.io/ for example) or switch to fontconfig.
