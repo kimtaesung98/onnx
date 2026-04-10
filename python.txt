@@ -33,3 +33,17 @@ try:
     print("SUCCESS: xfeat_fp16.onnx created!")
 except ImportError:
     print("Note: Install 'onnxconverter-common' to enable half-precision.")
+
+venv) prlab@prlab-desktop:~/jetson_camera_project$ /home/prlab/jetson_camera_project/venv/bin/python /home/prlab/jetson_camera_project/xfeat_research/export_xfeat_onnx.py
+loading weights from: /home/prlab/jetson_camera_project/xfeat_research/modules/../weights/xfeat.pt
+2026-04-10 16:22:53.354494726 [W:onnxruntime:Default, device_discovery.cc:164 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:89 ReadFileContents Failed to open file: "/sys/class/drm/card1/device/vendor"
+Exporting XFeat to ONNX on CPU (To avoid Error 12/Device Mismatch)...
+/home/prlab/jetson_camera_project/xfeat_research/export_xfeat_onnx.py:15: DeprecationWarning: You are using the legacy TorchScript-based ONNX export. Starting in PyTorch 2.9, the new torch.export-based ONNX exporter will be the default. To switch now, set dynamo=True in torch.onnx.export. This new exporter supports features like exporting LLMs with DynamicCache. We encourage you to try it and share feedback to help improve the experience. Learn more about the new export logic: https://pytorch.org/docs/stable/onnx_dynamo.html. For exporting control flow: https://pytorch.org/tutorials/beginner/onnx/export_control_flow_model_to_onnx_tutorial.html.
+  torch.onnx.export(model,
+/home/prlab/.local/lib/python3.10/site-packages/torch/onnx/symbolic_helper.py:1460: UserWarning: ONNX export mode is set to TrainingMode.EVAL, but operator 'instance_norm' is set to train=True. Exporting with train=True.
+  warnings.warn(
+SUCCESS: xfeat.onnx created on CPU!
+Converting to FP16 for Jetson Orin Nano...
+/home/prlab/.local/lib/python3.10/site-packages/onnxconverter_common/float16.py:52: UserWarning: the float32 number 2.5688960292313823e-08 will be truncated to 1e-07
+  warnings.warn(
+SUCCESS: xfeat_fp16.onnx created!
