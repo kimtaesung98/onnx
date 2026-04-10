@@ -1,73 +1,23 @@
-# 터미널에 직접 입력하세요
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/lib/aarch64-linux-gnu
+(venv) prlab@prlab-desktop:~/jetson_camera_project$ /home/prlab/jetson_camera_project/venv/bin/python /home/prlab/jetson_camera_project/xfeat_research/orin_realtime_slam_v3.py
+TensorRT 엔진 초기화 중... (첫 실행 시 엔진 빌드로 인해 1~2분 소요)
+2026-04-10 16:56:15.010982246 [E:onnxruntime:Default, provider_bridge_ort.cc:1532 TryGetProviderInfo_TensorRT] /home/yifanl/onnxruntime/onnxruntime/core/session/provider_bridge_ort.cc:1209 onnxruntime::Provider& onnxruntime::ProviderLibrary::Get() [ONNXRuntimeError] : 1 : FAIL : Failed to load library libonnxruntime_providers_tensorrt.so with error: libcudnn.so.8: cannot open shared object file: No such file or directory
 
-import cv2
-import numpy as np
-import onnxruntime as ort
-import time
-import os
+*************** EP Error ***************
+EP Error /home/yifanl/onnxruntime/onnxruntime/python/onnxruntime_pybind_state.cc:456 void onnxruntime::python::RegisterTensorRTPluginsAsCustomOps(onnxruntime::python::PySessionOptions&, const ProviderOptions&) Please install TensorRT libraries as mentioned in the GPU requirements page, make sure they're in the PATH or LD_LIBRARY_PATH, and that your GPU is supported.
+ when using [('TensorrtExecutionProvider', {'device_id': 0, 'trt_fp16_enable': True, 'trt_engine_cache_enable': True, 'trt_engine_cache_path': './'}), ('CUDAExecutionProvider', {'device_id': 0})]
+Falling back to ['CUDAExecutionProvider', 'CPUExecutionProvider'] and retrying.
+****************************************
+2026-04-10 16:56:15.040654612 [E:onnxruntime:Default, provider_bridge_ort.cc:1546 TryGetProviderInfo_CUDA] /home/yifanl/onnxruntime/onnxruntime/core/session/provider_bridge_ort.cc:1209 onnxruntime::Provider& onnxruntime::ProviderLibrary::Get() [ONNXRuntimeError] : 1 : FAIL : Failed to load library libonnxruntime_providers_cuda.so with error: libcudnn.so.8: cannot open shared object file: No such file or directory
 
-# [중요] 라이브러리 경로를 코드 내에서 강제 지정 (libcudnn 에러 방지)
-os.environ['LD_LIBRARY_PATH'] = '/usr/local/cuda/lib64:/usr/lib/aarch64-linux-gnu'
-
-# 1. TensorRT 설정
-providers = [
-    ('TensorrtExecutionProvider', {
-        'device_id': 0,
-        'trt_fp16_enable': True,
-        'trt_engine_cache_enable': True,
-        'trt_engine_cache_path': './'
-    }),
-    ('CUDAExecutionProvider', {'device_id': 0})
-]
-
-print("TensorRT 엔진 초기화 중... (첫 실행 시 엔진 빌드로 인해 1~2분 소요)")
-try:
-    session = ort.InferenceSession("xfeat_fp16.onnx", providers=providers)
-    active_ep = session.get_providers()[0]
-    print(f"활성화된 엔진: {active_ep}")
-except Exception as e:
-    print(f"초기화 실패: {e}")
-    exit()
-
-cap = cv2.VideoCapture(0)
-
-while True:
-    ret, frame = cap.read()
-    if not ret: break
-    
-    start = time.time()
-    
-    # --- 전처리 ---
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    # 모델 요구사항에 맞춰 float16으로 정규화
-    input_tensor = (gray.astype(np.float16) / 255.0)[None, None, :, :]
-    
-    # --- 추론 (Inference) ---
-    outputs = session.run(None, {'input': input_tensor})
-    
-    # --- 점 표시 로직 (핵심!) ---
-    # xFeat 모델은 보통 outputs[0]에 좌표(keypoints)가 들어있습니다.
-    # [주의] 모델 구조에 따라 outputs의 형태가 다를 수 있으므로 에러 시 체크 필요
-    try:
-        keypoints = outputs[0] # 형태: [N, 2]
-        if len(keypoints.shape) > 2: # [1, N, 2] 형태인 경우 처리
-            keypoints = keypoints[0]
-
-        for pt in keypoints[:200]: # 성능을 위해 상위 200개만 표시
-            x, y = int(pt[0]), int(pt[1])
-            cv2.circle(frame, (x, y), 3, (0, 0, 255), -1) # 빨간색 점
-    except Exception as e:
-        # 만약 점이 안 찍힌다면 모델 출력 형식이 다른 것이므로 로그 확인
-        pass
-
-    # --- 정보 출력 ---
-    fps = 1.0 / (time.time() - start)
-    cv2.putText(frame, f"Engine: {active_ep} | FPS: {fps:.1f}", (20, 40), 
-                cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
-    
-    cv2.imshow("Jetson Orin Nano xFeat v3", frame)
-    if cv2.waitKey(1) == ord('q'): break
-
-cap.release()
-cv2.destroyAllWindows()
+2026-04-10 16:56:15.040764663 [W:onnxruntime:Default, onnxruntime_pybind_state.cc:861 CreateExecutionProviderInstance] Failed to create CUDAExecutionProvider. Please reference https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html#requirementsto ensure all dependencies are met.
+활성화된 엔진: CPUExecutionProvider
+QFontDatabase: Cannot find font directory /home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/cv2/qt/fonts.
+Note that Qt no longer ships fonts. Deploy some (from https://dejavu-fonts.github.io/ for example) or switch to fontconfig.
+QFontDatabase: Cannot find font directory /home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/cv2/qt/fonts.
+Note that Qt no longer ships fonts. Deploy some (from https://dejavu-fonts.github.io/ for example) or switch to fontconfig.
+QFontDatabase: Cannot find font directory /home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/cv2/qt/fonts.
+Note that Qt no longer ships fonts. Deploy some (from https://dejavu-fonts.github.io/ for example) or switch to fontconfig.
+QFontDatabase: Cannot find font directory /home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/cv2/qt/fonts.
+Note that Qt no longer ships fonts. Deploy some (from https://dejavu-fonts.github.io/ for example) or switch to fontconfig.
+QFontDatabase: Cannot find font directory /home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/cv2/qt/fonts.
+Note that Qt no longer ships fonts. Deploy some (from https://dejavu-fonts.github.io/ for example) or switch to fontconfig.
