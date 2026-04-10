@@ -4,19 +4,26 @@ import onnxruntime as ort
 import time
 
 # 1. Load ONNX with TensorRT Provider
-# This tells the Jetson to build a hardware-specific engine
 providers = [
     ('TensorRTExecutionProvider', {
         'device_id': 0,
-        'trt_fp16_enable': True,  # This is the Quantization trigger!
+        'trt_fp16_enable': True,
         'trt_engine_cache_enable': True,
         'trt_engine_cache_path': './'
     }),
-    'CUDAExecutionProvider'
+    ('CUDAExecutionProvider', {
+        'device_id': 0,
+    }),
+    'CPUExecutionProvider'
 ]
 
-print("Initializing TensorRT Engine... (This may take a minute on first run)")
-session = ort.InferenceSession("xfeat_fp16.onnx", providers=providers)
+print("Initializing Inference Session...")
+try:
+    session = ort.InferenceSession("xfeat_fp16.onnx", providers=providers)
+    print(f"Active Provider: {session.get_providers()[0]}") 
+except Exception as e:
+    print(f"Session Error: {e}")
+    exit()
 
 # 2. Camera Setup
 cap = cv2.VideoCapture(0)
@@ -29,38 +36,22 @@ while True:
     
     start = time.time()
     
-    # Pre-processing: Grayscale and Normalize
+    # Pre-processing: 반드시 float16으로 변환 (모델 사양에 맞춤)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    inp = gray.astype(np.float32) / 255.0
-    inp = inp[None, None, :, :] # Add batch and channel dims
+    inp = gray.astype(np.float16) / 255.0  # float32 -> float16 수정
+    inp = inp[None, None, :, :] 
 
-    # Inference (The Quantized Speed)
-    outputs = session.run(None, {'input': inp})
+    # Inference
+    # 입력 딕셔너리의 값을 float16으로 확실히 전달
+    outputs = session.run(None, {'input': inp.astype(np.float16)})
     
-    # ... (Feature extraction logic here) ...
+    # ... (Feature extraction logic) ...
 
     fps = 1.0 / (time.time() - start)
-    cv2.putText(frame, f"QUANTIZED FPS: {fps:.1f}", (20, 50), 1, 2, (0, 255, 0), 2)
-    cv2.imshow("Jetson Nano Optimized SLAM", frame)
+    cv2.putText(frame, f"FPS: {fps:.1f} ({session.get_providers()[0]})", (20, 50), 1, 2, (0, 255, 0), 2)
+    cv2.imshow("Jetson Orin Nano XFeat", frame)
     
     if cv2.waitKey(1) == ord('q'): break
 
 cap.release()
-
-(venv) prlab@prlab-desktop:~/jetson_camera_project$ /home/prlab/jetson_camera_project/venv/bin/python /home/prlab/jetson_camera_project/xfeat_research/live_slam_quantized.py
-2026-04-10 16:26:05.810991786 [W:onnxruntime:Default, device_discovery.cc:164 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:89 ReadFileContents Failed to open file: "/sys/class/drm/card1/device/vendor"
-Initializing TensorRT Engine... (This may take a minute on first run)
-/home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py:123: UserWarning: Specified provider 'TensorRTExecutionProvider' is not in available provider names.Available providers: 'AzureExecutionProvider, CPUExecutionProvider'
-  warnings.warn(
-/home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py:123: UserWarning: Specified provider 'CUDAExecutionProvider' is not in available provider names.Available providers: 'AzureExecutionProvider, CPUExecutionProvider'
-  warnings.warn(
-*************** EP Error ***************
-EP Error Unknown Provider Type: TensorRTExecutionProvider when using [('TensorRTExecutionProvider', {'device_id': 0, 'trt_fp16_enable': True, 'trt_engine_cache_enable': True, 'trt_engine_cache_path': './'}), 'CUDAExecutionProvider']
-Falling back to ['CPUExecutionProvider'] and retrying.
-****************************************
-Traceback (most recent call last):
-  File "/home/prlab/jetson_camera_project/xfeat_research/live_slam_quantized.py", line 38, in <module>
-    outputs = session.run(None, {'input': inp})
-  File "/home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 287, in run
-    return self._sess.run(output_names, input_feed, run_options)
-onnxruntime.capi.onnxruntime_pybind11_state.InvalidArgument: [ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Unexpected input data type. Actual: (tensor(float)) , expected: (tensor(float16))
+cv2.destroyAllWindows()
