@@ -55,3 +55,26 @@ while True:
 
 cap.release()
 cv2.destroyAllWindows()
+
+(venv) prlab@prlab-desktop:~/jetson_camera_project$ /home/prlab/jetson_camera_project/venv/bin/python /home/prlab/jetson_camera_project/xfeat_research/live_slam_quantized.py
+2026-04-10 16:33:51.546280462 [W:onnxruntime:Default, device_discovery.cc:164 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:89 ReadFileContents Failed to open file: "/sys/class/drm/card1/device/vendor"
+Initializing Inference Session...
+/home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py:123: UserWarning: Specified provider 'TensorRTExecutionProvider' is not in available provider names.Available providers: 'AzureExecutionProvider, CPUExecutionProvider'
+  warnings.warn(
+/home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py:123: UserWarning: Specified provider 'CUDAExecutionProvider' is not in available provider names.Available providers: 'AzureExecutionProvider, CPUExecutionProvider'
+  warnings.warn(
+*************** EP Error ***************
+EP Error Unknown Provider Type: TensorRTExecutionProvider when using [('TensorRTExecutionProvider', {'device_id': 0, 'trt_fp16_enable': True, 'trt_engine_cache_enable': True, 'trt_engine_cache_path': './'}), ('CUDAExecutionProvider', {'device_id': 0}), 'CPUExecutionProvider']
+Falling back to ['CPUExecutionProvider'] and retrying.
+****************************************
+Active Provider: CPUExecutionProvider
+QFontDatabase: Cannot find font directory /home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/cv2/qt/fonts.
+Note that Qt no longer ships fonts. Deploy some (from https://dejavu-fonts.github.io/ for example) or switch to fontconfig.
+QFontDatabase: Cannot find font directory /home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/cv2/qt/fonts.
+Note that Qt no longer ships fonts. Deploy some (from https://dejavu-fonts.github.io/ for example) or switch to fontconfig.
+QFontDatabase: Cannot find font directory /home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/cv2/qt/fonts.
+Note that Qt no longer ships fonts. Deploy some (from https://dejavu-fonts.github.io/ for example) or switch to fontconfig.
+QFontDatabase: Cannot find font directory /home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/cv2/qt/fonts.
+Note that Qt no longer ships fonts. Deploy some (from https://dejavu-fonts.github.io/ for example) or switch to fontconfig.
+QFontDatabase: Cannot find font directory /home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/cv2/qt/fonts.
+Note that Qt no longer ships fonts. Deploy some (from https://dejavu-fonts.github.io/ for example) or switch to fontconfig.
