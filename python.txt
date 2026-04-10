@@ -1,23 +1,24 @@
-prlab@prlab-desktop:~/jetson_camera_project$ ls /usr/lib/aarch64-linux-gnu/libcudnn.so.9
-/usr/lib/aarch64-linux-gnu/libcudnn.so.9
-prlab@prlab-desktop:~/jetson_camera_project$ sudo ln -s /usr/lib/aarch64-linux-gnu/libcudnn.so.9 /usr/lib/aarch64-linux-gnu/libcudnn.so.8
-prlab@prlab-desktop:~/jetson_camera_project$ sudo ln -s /usr/lib/aarch64-linux-gnu/libcudnn_ops_infer.so.9 /usr/lib/aarch64-linux-gnu/libcudnn_ops_infer.so.8
-prlab@prlab-desktop:~/jetson_camera_project$ sudo ln -s /usr/lib/aarch64-linux-gnu/libcudnn_cnn_infer.so.9 /usr/lib/aarch64-linux-gnu/libcudnn_cnn_infer.so.8
-prlab@prlab-desktop:~/jetson_camera_project$ sudo ldconfig
-prlab@prlab-desktop:~/jetson_camera_project$ python3 ./xfeat_research/orin_fix_debug.py
-2026-04-10 17:24:39.906435376 [E:onnxruntime:Default, provider_bridge_ort.cc:1532 TryGetProviderInfo_TensorRT] /home/yifanl/onnxruntime/onnxruntime/core/session/provider_bridge_ort.cc:1209 onnxruntime::Provider& onnxruntime::ProviderLibrary::Get() [ONNXRuntimeError] : 1 : FAIL : Failed to load library libonnxruntime_providers_tensorrt.so with error: libnvinfer.so.8: cannot open shared object file: No such file or directory
+# 가상환경 안에서 기존 패키지 삭제
+pip uninstall onnxruntime-gpu onnxruntime
 
-*************** EP Error ***************
-EP Error /home/yifanl/onnxruntime/onnxruntime/python/onnxruntime_pybind_state.cc:456 void onnxruntime::python::RegisterTensorRTPluginsAsCustomOps(onnxruntime::python::PySessionOptions&, const ProviderOptions&) Please install TensorRT libraries as mentioned in the GPU requirements page, make sure they're in the PATH or LD_LIBRARY_PATH, and that your GPU is supported.
- when using ['TensorrtExecutionProvider', 'CUDAExecutionProvider', 'CPUExecutionProvider']
-Falling back to ['CUDAExecutionProvider', 'CPUExecutionProvider'] and retrying.
-****************************************
-2026-04-10 17:24:39.953114436 [E:onnxruntime:Default, provider_bridge_ort.cc:1546 TryGetProviderInfo_CUDA] /home/yifanl/onnxruntime/onnxruntime/core/session/provider_bridge_ort.cc:1209 onnxruntime::Provider& onnxruntime::ProviderLibrary::Get() [ONNXRuntimeError] : 1 : FAIL : Failed to load library libonnxruntime_providers_cuda.so with error: /usr/lib/aarch64-linux-gnu/libcudnn.so.8: version `libcudnn.so.8' not found (required by /home/prlab/.local/lib/python3.10/site-packages/onnxruntime/capi/libonnxruntime_providers_cuda.so)
+# NVIDIA JetPack 6 환경(Python 3.10)에 맞는 최신 ONNX Runtime GPU 버전 설치
+# 이 링크는 NVIDIA 공식 가이드에 따른 JetPack 6용 빌드입니다.
+pip install --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/ onnxruntime-gpu
 
-2026-04-10 17:24:39.953272201 [W:onnxruntime:Default, onnxruntime_pybind_state.cc:861 CreateExecutionProviderInstance] Failed to create CUDAExecutionProvider. Please reference https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html#requirementsto ensure all dependencies are met.
---- 활성화된 엔진: CPUExecutionProvider ---
-[ WARN:0] global ./modules/videoio/src/cap_gstreamer.cpp (1100) open OpenCV | GStreamer warning: Cannot query video position: status=0, value=-1, duration=-1
-^CTraceback (most recent call last):
-  File "/home/prlab/jetson_camera_project/./xfeat_research/orin_fix_debug.py", line 17, in <module>
-    ret, frame = cap.read()
-KeyboardInterrupt
+pip install onnxruntime-gpu --extra-index-url https://google-googlesource.com/onnxruntime
+
+import os
+import sys
+
+# Orin의 실제 라이브러리 경로들 (TensorRT 및 CUDA)
+os.environ['LD_LIBRARY_PATH'] = (
+    '/usr/lib/aarch64-linux-gnu:'
+    '/usr/local/cuda/lib64:'
+    '/usr/local/lib:' + 
+    os.environ.get('LD_LIBRARY_PATH', '')
+)
+
+import cv2
+import numpy as np
+import onnxruntime as ort
+import time
