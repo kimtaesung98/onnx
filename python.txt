@@ -1,6 +1,11 @@
 pip install --upgrade pip
 # CUDA 12.6과 호환되는 최신 ONNX Runtime GPU 설치
-pip install --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/ onnxruntime-gpu
+
+# 기존에 꼬여있을 수 있는 패키지 삭제
+pip uninstall onnxruntime-gpu -y
+
+# NVIDIA 공식 Jetson 전용 서버 주소를 사용합니다.
+pip install --no-cache-dir --extra-index-url https://pypi.nvidia.com onnxruntime-gpu
 
 # 가상환경 활성화 스크립트 끝에 경로 추가
 echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/lib/aarch64-linux-gnu' >> venv/bin/activate
