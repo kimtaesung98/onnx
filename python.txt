@@ -1,35 +1,68 @@
-venv) prlab@prlab-desktop:~/jetson_camera_project/onnx/wheels$ pip install onnxruntime_gpu-1.17.0-cp310-cp310-linux_aarch64.whl
-Processing ./onnxruntime_gpu-1.17.0-cp310-cp310-linux_aarch64.whl
-Requirement already satisfied: coloredlogs in /home/prlab/.local/lib/python3.10/site-packages (from onnxruntime-gpu==1.17.0) (15.0.1)
-Requirement already satisfied: flatbuffers in /home/prlab/.local/lib/python3.10/site-packages (from onnxruntime-gpu==1.17.0) (25.12.19)
-Requirement already satisfied: numpy>=1.26.3 in /home/prlab/.local/lib/python3.10/site-packages (from onnxruntime-gpu==1.17.0) (1.26.4)
-Requirement already satisfied: packaging in /usr/lib/python3/dist-packages (from onnxruntime-gpu==1.17.0) (21.3)
-Requirement already satisfied: protobuf in /home/prlab/.local/lib/python3.10/site-packages (from onnxruntime-gpu==1.17.0) (7.34.1)
-Requirement already satisfied: sympy in /home/prlab/.local/lib/python3.10/site-packages (from onnxruntime-gpu==1.17.0) (1.14.0)
-Requirement already satisfied: humanfriendly>=9.1 in /home/prlab/.local/lib/python3.10/site-packages (from coloredlogs->onnxruntime-gpu==1.17.0) (10.0)
-Requirement already satisfied: mpmath<1.4,>=1.1.0 in /home/prlab/.local/lib/python3.10/site-packages (from sympy->onnxruntime-gpu==1.17.0) (1.3.0)
-Installing collected packages: onnxruntime-gpu
-Successfully installed onnxruntime-gpu-1.17.0
+prlab@prlab-desktop:~$ sudo apt-cache show nvidia-jetpack
+[sudo] password for prlab: 
+Package: nvidia-jetpack
+Source: nvidia-jetpack (6.2.1)
+Version: 6.2.1+b38
+Architecture: arm64
+Maintainer: NVIDIA Corporation
+Installed-Size: 194
+Depends: nvidia-jetpack-runtime (= 6.2.1+b38), nvidia-jetpack-dev (= 6.2.1+b38)
+Homepage: http://developer.nvidia.com/jetson
+Priority: standard
+Section: metapackages
+Filename: pool/main/n/nvidia-jetpack/nvidia-jetpack_6.2.1+b38_arm64.deb
+Size: 29300
+SHA256: dd9cb893fbe7f80d2c2348b268f17c8140b18b9dbb674fa8d79facfaa2050c53
+SHA1: dc630f213f9afcb6f67c65234df7ad5c019edb9c
+MD5sum: 9c8dc61bdab2b816dcc7cd253bcf6482
+Description: NVIDIA Jetpack Meta Package
+Description-md5: ad1462289bdbc54909ae109d1d32c0a8
 
-(venv) prlab@prlab-desktop:~/jetson_camera_project$ /home/prlab/jetson_camera_project/venv/bin/python /home/prlab/jetson_camera_project/xfeat_research/orin_fix_debug.py
-2026-04-10 17:47:45.272395387 [E:onnxruntime:Default, provider_bridge_ort.cc:1532 TryGetProviderInfo_TensorRT] /home/yifanl/onnxruntime/onnxruntime/core/session/provider_bridge_ort.cc:1209 onnxruntime::Provider& onnxruntime::ProviderLibrary::Get() [ONNXRuntimeError] : 1 : FAIL : Failed to load library libonnxruntime_providers_tensorrt.so with error: libnvinfer.so.8: cannot open shared object file: No such file or directory
+Package: nvidia-jetpack
+Source: nvidia-jetpack (6.2)
+Version: 6.2+b77
+Architecture: arm64
+Maintainer: NVIDIA Corporation
+Installed-Size: 194
+Depends: nvidia-jetpack-runtime (= 6.2+b77), nvidia-jetpack-dev (= 6.2+b77)
+Homepage: http://developer.nvidia.com/jetson
+Priority: standard
+Section: metapackages
+Filename: pool/main/n/nvidia-jetpack/nvidia-jetpack_6.2+b77_arm64.deb
+Size: 29298
+SHA256: 70553d4b5a802057f9436677ef8ce255db386fd3b5d24ff2c0a8ec0e485c59cd
+SHA1: 9deab64d12eef0e788471e05856c84bf2a0cf6e6
+MD5sum: 4db65dc36434fe1f84176843384aee23
+Description: NVIDIA Jetpack Meta Package
+Description-md5: ad1462289bdbc54909ae109d1d32c0a8
 
-*************** EP Error ***************
-EP Error /home/yifanl/onnxruntime/onnxruntime/python/onnxruntime_pybind_state.cc:456 void onnxruntime::python::RegisterTensorRTPluginsAsCustomOps(onnxruntime::python::PySessionOptions&, const ProviderOptions&) Please install TensorRT libraries as mentioned in the GPU requirements page, make sure they're in the PATH or LD_LIBRARY_PATH, and that your GPU is supported.
- when using ['TensorrtExecutionProvider', 'CUDAExecutionProvider', 'CPUExecutionProvider']
-Falling back to ['CUDAExecutionProvider', 'CPUExecutionProvider'] and retrying.
-****************************************
-2026-04-10 17:47:45.374963905 [E:onnxruntime:Default, provider_bridge_ort.cc:1546 TryGetProviderInfo_CUDA] /home/yifanl/onnxruntime/onnxruntime/core/session/provider_bridge_ort.cc:1209 onnxruntime::Provider& onnxruntime::ProviderLibrary::Get() [ONNXRuntimeError] : 1 : FAIL : Failed to load library libonnxruntime_providers_cuda.so with error: /usr/lib/aarch64-linux-gnu/libcudnn.so.8: version `libcudnn.so.8' not found (required by /home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/onnxruntime/capi/libonnxruntime_providers_cuda.so)
+Package: nvidia-jetpack
+Source: nvidia-jetpack (6.1)
+Version: 6.1+b123
+Architecture: arm64
+Maintainer: NVIDIA Corporation
+Installed-Size: 194
+Depends: nvidia-jetpack-runtime (= 6.1+b123), nvidia-jetpack-dev (= 6.1+b123)
+Homepage: http://developer.nvidia.com/jetson
+Priority: standard
+Section: metapackages
+Filename: pool/main/n/nvidia-jetpack/nvidia-jetpack_6.1+b123_arm64.deb
+Size: 29312
+SHA256: b6475a6108aeabc5b16af7c102162b7c46c36361239fef6293535d05ee2c2929
+SHA1: f0984a6272c8f3a70ae14cb2ca6716b8c1a09543
+MD5sum: a167745e1d88a8d7597454c8003fa9a4
+Description: NVIDIA Jetpack Meta Package
+Description-md5: ad1462289bdbc54909ae109d1d32c0a8
 
-2026-04-10 17:47:45.375080997 [W:onnxruntime:Default, onnxruntime_pybind_state.cc:861 CreateExecutionProviderInstance] Failed to create CUDAExecutionProvider. Please reference https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html#requirementsto ensure all dependencies are met.
---- 활성화된 엔진: CPUExecutionProvider ---
-QFontDatabase: Cannot find font directory /home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/cv2/qt/fonts.
-Note that Qt no longer ships fonts. Deploy some (from https://dejavu-fonts.github.io/ for example) or switch to fontconfig.
-QFontDatabase: Cannot find font directory /home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/cv2/qt/fonts.
-Note that Qt no longer ships fonts. Deploy some (from https://dejavu-fonts.github.io/ for example) or switch to fontconfig.
-QFontDatabase: Cannot find font directory /home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/cv2/qt/fonts.
-Note that Qt no longer ships fonts. Deploy some (from https://dejavu-fonts.github.io/ for example) or switch to fontconfig.
-QFontDatabase: Cannot find font directory /home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/cv2/qt/fonts.
-Note that Qt no longer ships fonts. Deploy some (from https://dejavu-fonts.github.io/ for example) or switch to fontconfig.
-QFontDatabase: Cannot find font directory /home/prlab/jetson_camera_project/venv/lib/python3.10/site-packages/cv2/qt/fonts.
-Note that Qt no longer ships fonts. Deploy some (from https://dejavu-fonts.github.io/ for example) or switch to fontconfig.
+prlab@prlab-desktop:~$ nvcc --version
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2024 NVIDIA Corporation
+Built on Wed_Aug_14_10:14:07_PDT_2024
+Cuda compilation tools, release 12.6, V12.6.68
+Build cuda_12.6.r12.6/compiler.34714021_0
+prlab@prlab-desktop:~$ sudo nvpmodel -q
+NV Power Mode: 25W
+1
+prlab@prlab-desktop:~$ ls /usr/local/cuda/lib64/libcudart.so
+/usr/local/cuda/lib64/libcudart.so
+
