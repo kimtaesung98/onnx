@@ -23,3 +23,10 @@ if 'TensorrtExecutionProvider' in providers:
     print("✅ 성공: TensorRT 가속을 사용할 수 있습니다!")
 else:
     print("❌ 실패: 여전히 CPU 모드입니다. 라이브러리 링크를 확인하세요.")
+
+
+    error 
+
+pip install --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/ onnxruntime-gpu
+ERROR: Could not find a version that satisfies the requirement onnxruntime-gpu (from versions: none)
+ERROR: No matching distribution found for onnxruntime-gpu
