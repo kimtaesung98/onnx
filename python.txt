@@ -1,68 +1,25 @@
-prlab@prlab-desktop:~$ sudo apt-cache show nvidia-jetpack
-[sudo] password for prlab: 
-Package: nvidia-jetpack
-Source: nvidia-jetpack (6.2.1)
-Version: 6.2.1+b38
-Architecture: arm64
-Maintainer: NVIDIA Corporation
-Installed-Size: 194
-Depends: nvidia-jetpack-runtime (= 6.2.1+b38), nvidia-jetpack-dev (= 6.2.1+b38)
-Homepage: http://developer.nvidia.com/jetson
-Priority: standard
-Section: metapackages
-Filename: pool/main/n/nvidia-jetpack/nvidia-jetpack_6.2.1+b38_arm64.deb
-Size: 29300
-SHA256: dd9cb893fbe7f80d2c2348b268f17c8140b18b9dbb674fa8d79facfaa2050c53
-SHA1: dc630f213f9afcb6f67c65234df7ad5c019edb9c
-MD5sum: 9c8dc61bdab2b816dcc7cd253bcf6482
-Description: NVIDIA Jetpack Meta Package
-Description-md5: ad1462289bdbc54909ae109d1d32c0a8
+pip install --upgrade pip
+# CUDA 12.6과 호환되는 최신 ONNX Runtime GPU 설치
+pip install --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/ onnxruntime-gpu
 
-Package: nvidia-jetpack
-Source: nvidia-jetpack (6.2)
-Version: 6.2+b77
-Architecture: arm64
-Maintainer: NVIDIA Corporation
-Installed-Size: 194
-Depends: nvidia-jetpack-runtime (= 6.2+b77), nvidia-jetpack-dev (= 6.2+b77)
-Homepage: http://developer.nvidia.com/jetson
-Priority: standard
-Section: metapackages
-Filename: pool/main/n/nvidia-jetpack/nvidia-jetpack_6.2+b77_arm64.deb
-Size: 29298
-SHA256: 70553d4b5a802057f9436677ef8ce255db386fd3b5d24ff2c0a8ec0e485c59cd
-SHA1: 9deab64d12eef0e788471e05856c84bf2a0cf6e6
-MD5sum: 4db65dc36434fe1f84176843384aee23
-Description: NVIDIA Jetpack Meta Package
-Description-md5: ad1462289bdbc54909ae109d1d32c0a8
+# 가상환경 활성화 스크립트 끝에 경로 추가
+echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/lib/aarch64-linux-gnu' >> venv/bin/activate
+source venv/bin/activate
 
-Package: nvidia-jetpack
-Source: nvidia-jetpack (6.1)
-Version: 6.1+b123
-Architecture: arm64
-Maintainer: NVIDIA Corporation
-Installed-Size: 194
-Depends: nvidia-jetpack-runtime (= 6.1+b123), nvidia-jetpack-dev (= 6.1+b123)
-Homepage: http://developer.nvidia.com/jetson
-Priority: standard
-Section: metapackages
-Filename: pool/main/n/nvidia-jetpack/nvidia-jetpack_6.1+b123_arm64.deb
-Size: 29312
-SHA256: b6475a6108aeabc5b16af7c102162b7c46c36361239fef6293535d05ee2c2929
-SHA1: f0984a6272c8f3a70ae14cb2ca6716b8c1a09543
-MD5sum: a167745e1d88a8d7597454c8003fa9a4
-Description: NVIDIA Jetpack Meta Package
-Description-md5: ad1462289bdbc54909ae109d1d32c0a8
+# libcudnn (9 -> 8 연결)
+sudo ln -sf /usr/lib/aarch64-linux-gnu/libcudnn.so.9 /usr/lib/aarch64-linux-gnu/libcudnn.so.8
+# libnvinfer (TensorRT 10/9 -> 8 연결)
+sudo ln -sf /usr/lib/aarch64-linux-gnu/libnvinfer.so.10 /usr/lib/aarch64-linux-gnu/libnvinfer.so.8
+sudo ldconfig
 
-prlab@prlab-desktop:~$ nvcc --version
-nvcc: NVIDIA (R) Cuda compiler driver
-Copyright (c) 2005-2024 NVIDIA Corporation
-Built on Wed_Aug_14_10:14:07_PDT_2024
-Cuda compilation tools, release 12.6, V12.6.68
-Build cuda_12.6.r12.6/compiler.34714021_0
-prlab@prlab-desktop:~$ sudo nvpmodel -q
-NV Power Mode: 25W
-1
-prlab@prlab-desktop:~$ ls /usr/local/cuda/lib64/libcudart.so
-/usr/local/cuda/lib64/libcudart.so
+import onnxruntime as ort
+import os
 
+print(f"--- Orin Nano JetPack 6.2 환경 체크 ---")
+providers = ort.get_available_providers()
+print(f"사용 가능한 공급자: {providers}")
+
+if 'TensorrtExecutionProvider' in providers:
+    print("✅ 성공: TensorRT 가속을 사용할 수 있습니다!")
+else:
+    print("❌ 실패: 여전히 CPU 모드입니다. 라이브러리 링크를 확인하세요.")
