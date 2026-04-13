@@ -1,4 +1,26 @@
-(venv) prlab@prlab-desktop:~/new_orin_project$ python3 main_slam.py
-🚀 TensorRT 엔진 최적화 중... 잠시만 기다려주세요.
-NvMapMemAllocInternalTagged: 1075072515 error 12
-NvMapMemHandleAlloc: error 0
+# 가상환경 밖에서 실행 (또는 sudo 권한으로)
+sudo fallocate -l 8G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+
+# 확인
+free -h
+
+# 메모리 캐시 강제 해제
+sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'
+
+# GUI 화면이 켜져 있다면 메모리를 많이 잡아먹습니다. 
+# 만약 jtop이 켜져 있다면 잠시 끄고 실행하세요.
+
+providers = [
+    ('TensorrtExecutionProvider', {
+        'device_id': 0,
+        'trt_fp16_enable': True,
+        'trt_engine_cache_enable': True,
+        'trt_engine_cache_path': './',
+        # 오린 나노를 위해 작업 메모리 제한 (약 1GB~2GB 권장)
+        'trt_max_workspace_size': 2147483648, 
+    }),
+    'CUDAExecutionProvider'
+]
