@@ -1,6 +1,2 @@
-# 가상환경 활성화 상태에서 실행
-pip uninstall opencv-python -y
-pip install "opencv-python<4.10"
-
-# JetPack 6.x용 PyTorch 2.3.0 공식 휠
-pip install --no-cache-dir https://developer.download.nvidia.com/compute/redist/jp/v60/pytorch/torch-2.3.0%2Bebedce2.nv24.03-cp310-cp310-linux_aarch64.whl
+ ERROR: HTTP error 404 while getting https://developer.download.nvidia.com/compute/redist/jp/v60/pytorch/torch-2.3.0%2Bebedce2.nv24.03-cp310-cp310-linux_aarch64.whl
+ERROR: Could not install requirement torch==2.3.0+ebedce2.nv24.3 from https://developer.download.nvidia.com/compute/redist/jp/v60/pytorch/torch-2.3.0%2Bebedce2.nv24.03-cp310-cp310-linux_aarch64.whl because of HTTP error 404 Client Error: Not Found for url: https://developer.download.nvidia.com/compute/redist/jp/v60/pytorch/torch-2.3.0%2Bebedce2.nv24.03-cp310-cp310-linux_aarch64.whl for URL https://developer.download.nvidia.com/compute/redist/jp/v60/pytorch/torch-2.3.0%2Bebedce2.nv24.03-cp310-cp310-linux_aarch64.whl
