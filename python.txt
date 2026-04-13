@@ -83,3 +83,16 @@ while True:
 
 cap.release()
 cv2.destroyAllWindows()
+
+
+(venv) prlab@prlab-desktop:~/new_orin_project$ python3 main_slam.py
+🚀 TensorRT 엔진 최적화 중... 잠시만 기다려주세요.
+Traceback (most recent call last):
+  File "/home/prlab/new_orin_project/main_slam.py", line 20, in <module>
+    session = ort.InferenceSession("xfeat_fp16.onnx", providers=providers)
+  File "/home/prlab/new_orin_project/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 471, in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+  File "/home/prlab/new_orin_project/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 559, in _create_inference_session
+    sess = C.InferenceSession(session_options, self._model_path, True, self._read_config_from_model)
+onnxruntime.capi.onnxruntime_pybind11_state.NoSuchFile: [ONNXRuntimeError] : 3 : NO_SUCHFILE : Load model from xfeat_fp16.onnx failed:Load model xfeat_fp16.onnx failed. File doesn't exist
+(venv) prlab@prlab-desktop:~/new_orin_project$ 
