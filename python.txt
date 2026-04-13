@@ -1,15 +1,5 @@
-import torch
-import onnxruntime as ort
-import numpy as np
-
-print(f"NumPy Version: {np.__version__}") # 1.26.x 여야 함
-print(f"PyTorch GPU: {torch.cuda.is_available()}")
-
-# ONNX Runtime 가속 확인
-providers = ort.get_available_providers()
-print(f"Available Providers: {providers}")
-
-if 'TensorrtExecutionProvider' in providers:
-    print("✅ 성공: 모든 하드웨어 가속 준비가 완료되었습니다.")
-else:
-    print("⚠️ 경고: 텐서RT를 아직 인식하지 못했습니다. 심볼릭 링크를 확인하세요.")
+venv) prlab@prlab-desktop:~/new_orin_project$ python3 verify.py
+NumPy Version: 1.26.4
+PyTorch GPU: True
+Available Providers: ['TensorrtExecutionProvider', 'CUDAExecutionProvider', 'CPUExecutionProvider']
+✅ 성공: 모든 하드웨어 가속 준비가 완료되었습니다.
