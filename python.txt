@@ -1,19 +1,42 @@
-(venv) prlab@prlab-desktop:~/new_orin_project$ cd ~/new_orin_project/venv/lib/python3.10/site-packages/
+#!/bin/bash
+SITE_PACKAGES="./venv/lib/python3.10/site-packages"
+ln -sf /usr/lib/python3.10/dist-packages/tensorrt* $SITE_PACKAGES/
+ln -sf /usr/lib/python3.10/dist-packages/graphsurgeon* $SITE_PACKAGES/
+ln -sf /usr/lib/python3.10/dist-packages/uff* $SITE_PACKAGES/
+echo "✅ TensorRT Symbolic links created."
 
-# 시스템의 TensorRT 파이썬 바인딩을 가상환경으로 연결
-ln -s /usr/lib/python3.10/dist-packages/tensorrt* .
-ln -s /usr/lib/python3.10/dist-packages/graphsurgeon* .
-ln -s /usr/lib/python3.10/dist-packages/uff* .
-(venv) prlab@prlab-desktop:~/new_orin_project/venv/lib/python3.10/site-packages$ python3 test.py
-python3: can't open file '/home/prlab/new_orin_project/venv/lib/python3.10/site-packages/test.py': [Errno 2] No such file or directory
-(venv) prlab@prlab-desktop:~/new_orin_project/venv/lib/python3.10/site-packages$ cd ../../../
-(venv) prlab@prlab-desktop:~/new_orin_project/venv$ python3 test.py
-python3: can't open file '/home/prlab/new_orin_project/venv/test.py': [Errno 2] No such file or directory
-(venv) prlab@prlab-desktop:~/new_orin_project/venv$ cd ../
-(venv) prlab@prlab-desktop:~/new_orin_project$ python3 test.py
-/home/prlab/new_orin_project/venv/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py:121: UserWarning: Specified provider 'TensorRTExecutionProvider' is not in available provider names.Available providers: 'TensorrtExecutionProvider, CUDAExecutionProvider, CPUExecutionProvider'
-  warnings.warn(
-❌ 설정 실패: [ONNXRuntimeError] : 3 : NO_SUCHFILE : Load model from your_model.onnx failed:Load model your_model.onnx failed. File doesn't exist
-사용 가능 목록: ['TensorrtExecutionProvider', 'CUDAExecutionProvider', 'CPUExecutionProvider']
+import torch
+import torch.onnx
+import onnxruntime as ort
+import numpy as np
+
+# 1. 테스트용 아주 간단한 모델 생성 (없으면 만들기)
+model_path = "test_model.onnx"
+dummy_input = torch.randn(1, 3, 224, 224).cuda()
+model = torch.nn.Sequential(torch.nn.Conv2d(3, 16, 3), torch.nn.ReLU()).cuda()
+torch.onnx.export(model, dummy_input.cpu(), model_path)
+print(f"✅ 테스트 모델 생성 완료: {model_path}")
+
+# 2. ONNX Runtime GPU 세션 설정
+# 시스템에서 인식한 'TensorrtExecutionProvider' 사용
+providers = [
+    ('TensorrtExecutionProvider', {
+        'device_id': 0,
+        'trt_fp16_enable': True,
+    }),
+    'CUDAExecutionProvider'
+]
+
+try:
+    session = ort.InferenceSession(model_path, providers=providers)
+    print(f"🚀 현재 사용 중인 Provider: {session.get_providers()}")
+    
+    # 더미 데이터로 추론 실행
+    input_name = session.get_inputs()[0].name
+    test_data = np.random.randn(1, 3, 224, 224).astype(np.float32)
+    result = session.run(None, {input_name: test_data})
+    print("🔥 GPU 추론 성공!")
+except Exception as e:
+    print(f"❌ 실행 실패: {e}")
 
 export LD_LIBRARY_PATH=/usr/lib/aarch64-linux-gnu:$LD_LIBRARY_PATH
