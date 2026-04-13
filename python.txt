@@ -3,3 +3,83 @@ NumPy Version: 1.26.4
 PyTorch GPU: True
 Available Providers: ['TensorrtExecutionProvider', 'CUDAExecutionProvider', 'CPUExecutionProvider']
 ✅ 성공: 모든 하드웨어 가속 준비가 완료되었습니다.
+
+pip install opencv-python
+
+cp ~/jetson_camera_project/xfeat_fp16.onnx ~/new_orin_project/
+
+echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/lib/aarch64-linux-gnu' >> venv/bin/activate
+source venv/bin/activate
+
+import cv2
+import numpy as np
+import onnxruntime as ort
+import time
+
+# 1. TensorRT 세션 초기화
+# 첫 실행 시 TensorRT 엔진 빌드로 인해 1~3분 정도 소요될 수 있습니다. (정상임)
+providers = [
+    ('TensorrtExecutionProvider', {
+        'device_id': 0,
+        'trt_fp16_enable': True,
+        'trt_engine_cache_enable': True,
+        'trt_engine_cache_path': './' # 엔진 캐시 저장 (다음 실행부터 빨라짐)
+    }),
+    'CUDAExecutionProvider',
+    'CPUExecutionProvider'
+]
+
+print("🚀 TensorRT 엔진 최적화 중... 잠시만 기다려주세요.")
+session = ort.InferenceSession("xfeat_fp16.onnx", providers=providers)
+print(f"✅ 사용 중인 엔진: {session.get_providers()[0]}")
+
+# 2. 카메라 설정
+cap = cv2.VideoCapture(0)
+# 카메라 해상도가 높더라도 모델 입력 크기(640x480)에 맞춰 연산할 예정입니다.
+
+while True:
+    ret, frame = cap.read()
+    if not ret: break
+    
+    start_time = time.time()
+    
+    # --- 전처리 ---
+    # 모델 입력 크기 640x480으로 리사이즈 (가장 중요!)
+    frame_resized = cv2.resize(frame, (640, 480))
+    gray = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2GRAY)
+    
+    # 정규화 및 float16 변환 (TensorRT 가속 최적화)
+    input_tensor = (gray.astype(np.float16) / 255.0)[None, None, :, :]
+    
+    # --- 추론 (Inference) ---
+    outputs = session.run(None, {'input': input_tensor})
+    
+    # --- 특징점 표시 (사라졌던 점 다시 그리기) ---
+    try:
+        # xFeat 모델 출력 해석 (보통 outputs[0]에 좌표가 위치함)
+        keypoints = outputs[0]
+        if len(keypoints.shape) == 3: keypoints = keypoints[0]
+
+        # 상위 300개 점만 화면에 출력
+        for pt in keypoints[:300]:
+            x, y = int(pt[0]), int(pt[1])
+            # 640x480 범위 내에 있는지 확인 후 그리기
+            if 0 <= x < 640 and 0 <= y < 480:
+                cv2.circle(frame_resized, (x, y), 2, (0, 0, 255), -1) # 빨간색 점
+    except Exception as e:
+        # 출력 형식이 다를 경우 디버깅용 (필요시 주석 해제)
+        # print(f"Drawing error: {e}")
+        pass
+
+    # --- 성능 정보 출력 ---
+    fps = 1.0 / (time.time() - start_time)
+    cv2.putText(frame_resized, f"FPS: {fps:.1f} ({session.get_providers()[0]})", 
+                (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+    
+    cv2.imshow("Jetson Orin Nano - Realtime xFeat", frame_resized)
+    
+    if cv2.waitKey(1) == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
