@@ -1,2 +1,8 @@
- ERROR: HTTP error 404 while getting https://developer.download.nvidia.com/compute/redist/jp/v60/pytorch/torch-2.3.0%2Bebedce2.nv24.03-cp310-cp310-linux_aarch64.whl
-ERROR: Could not install requirement torch==2.3.0+ebedce2.nv24.3 from https://developer.download.nvidia.com/compute/redist/jp/v60/pytorch/torch-2.3.0%2Bebedce2.nv24.03-cp310-cp310-linux_aarch64.whl because of HTTP error 404 Client Error: Not Found for url: https://developer.download.nvidia.com/compute/redist/jp/v60/pytorch/torch-2.3.0%2Bebedce2.nv24.03-cp310-cp310-linux_aarch64.whl for URL https://developer.download.nvidia.com/compute/redist/jp/v60/pytorch/torch-2.3.0%2Bebedce2.nv24.03-cp310-cp310-linux_aarch64.whl
+wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/arm64/cuda-keyring_1.1-1_all.deb
+sudo dpkg -i cuda-keyring_1.1-1_all.deb
+sudo apt-get update
+sudo apt-get -y install cusparselt-cuda-12
+sudo apt-get -y install cudss
+sudo apt-get install -y python3-pip libopenblas-dev libcusparselt-dev
+sudo apt-get install -y cuda-cupti-12-6
+python3 -m pip install torch==2.8.0 torchvision==0.23.0 --index-url=https://pypi.jetson-ai-lab.io/jp6/cu126
