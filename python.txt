@@ -1,20 +1,4 @@
-find ~ -name "xfeat_fp16.onnx"
-
-import torch
-
-# xFeat 모델과 입력 구조가 비슷한 임시 모델 생성
-class DummyModel(torch.nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.conv = torch.nn.Conv2d(1, 1, 3, padding=1)
-    def forward(self, x):
-        # xFeat처럼 특징점 좌표(랜덤)를 반환하는 척 함
-        return torch.rand(1, 300, 2) * 400 
-
-model = DummyModel().cuda().half()
-dummy_input = torch.randn(1, 1, 480, 640).cuda().half()
-
-# ONNX 파일로 저장
-torch.onnx.export(model, dummy_input, "xfeat_fp16.onnx", 
-                  input_names=['input'], output_names=['output'])
-print("✅ 임시 모델 'xfeat_fp16.onnx'를 생성했습니다.")
+(venv) prlab@prlab-desktop:~/new_orin_project$ python3 main_slam.py
+🚀 TensorRT 엔진 최적화 중... 잠시만 기다려주세요.
+NvMapMemAllocInternalTagged: 1075072515 error 12
+NvMapMemHandleAlloc: error 0
