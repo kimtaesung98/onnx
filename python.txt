@@ -1,8 +1,15 @@
-wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/arm64/cuda-keyring_1.1-1_all.deb
-sudo dpkg -i cuda-keyring_1.1-1_all.deb
-sudo apt-get update
-sudo apt-get -y install cusparselt-cuda-12
-sudo apt-get -y install cudss
-sudo apt-get install -y python3-pip libopenblas-dev libcusparselt-dev
-sudo apt-get install -y cuda-cupti-12-6
-python3 -m pip install torch==2.8.0 torchvision==0.23.0 --index-url=https://pypi.jetson-ai-lab.io/jp6/cu126
+import torch
+import onnxruntime as ort
+import numpy as np
+
+print(f"NumPy Version: {np.__version__}") # 1.26.x 여야 함
+print(f"PyTorch GPU: {torch.cuda.is_available()}")
+
+# ONNX Runtime 가속 확인
+providers = ort.get_available_providers()
+print(f"Available Providers: {providers}")
+
+if 'TensorrtExecutionProvider' in providers:
+    print("✅ 성공: 모든 하드웨어 가속 준비가 완료되었습니다.")
+else:
+    print("⚠️ 경고: 텐서RT를 아직 인식하지 못했습니다. 심볼릭 링크를 확인하세요.")
