@@ -1,42 +1,41 @@
-#!/bin/bash
-SITE_PACKAGES="./venv/lib/python3.10/site-packages"
-ln -sf /usr/lib/python3.10/dist-packages/tensorrt* $SITE_PACKAGES/
-ln -sf /usr/lib/python3.10/dist-packages/graphsurgeon* $SITE_PACKAGES/
-ln -sf /usr/lib/python3.10/dist-packages/uff* $SITE_PACKAGES/
-echo "✅ TensorRT Symbolic links created."
+# 1. 필수 시스템 라이브러리 설치
+sudo apt-get update
+sudo apt-get install -y libopenblas-base libopenmpi-dev libomp-dev
+
+# 2. PyTorch 2.3.0 (JetPack 6.x 호환) 설치 
+# NVIDIA 서버에서 직접 가져옵니다.
+pip install https://developer.download.nvidia.com/compute/redist/jp/v60/pytorch/torch-2.3.0a0+ebedce2.nv24.03-cp310-cp310-linux_aarch64.whl
+
+# 3. Torchvision 설치 (Torch 버전과 매칭 필수)
+pip install torchvision==0.18.0
+
+# 1. NumPy 및 기초 데이터 라이브러리
+pip install "numpy<2" pandas scikit-learn tqdm
+
+# 2. 이미지 처리 라이브러리
+pip install opencv-python pillow
+
+# 3. 젯슨 모니터링 도구 (가상환경 밖에서도 사용 가능하도록 sudo 권장하지만, 일단 pip 설치)
+pip install jetson-stats
 
 import torch
-import torch.onnx
 import onnxruntime as ort
 import numpy as np
+import cv2
 
-# 1. 테스트용 아주 간단한 모델 생성 (없으면 만들기)
-model_path = "test_model.onnx"
-dummy_input = torch.randn(1, 3, 224, 224).cuda()
-model = torch.nn.Sequential(torch.nn.Conv2d(3, 16, 3), torch.nn.ReLU()).cuda()
-torch.onnx.export(model, dummy_input.cpu(), model_path)
-print(f"✅ 테스트 모델 생성 완료: {model_path}")
+print(f"NumPy Version: {np.__version__}")
+print(f"OpenCV Version: {cv2.__version__}")
 
-# 2. ONNX Runtime GPU 세션 설정
-# 시스템에서 인식한 'TensorrtExecutionProvider' 사용
-providers = [
-    ('TensorrtExecutionProvider', {
-        'device_id': 0,
-        'trt_fp16_enable': True,
-    }),
-    'CUDAExecutionProvider'
-]
+# PyTorch GPU 체크
+print(f"PyTorch CUDA Available: {torch.cuda.is_available()}")
+if torch.cuda.is_available():
+    print(f"Device Name: {torch.cuda.get_device_name(0)}")
 
-try:
-    session = ort.InferenceSession(model_path, providers=providers)
-    print(f"🚀 현재 사용 중인 Provider: {session.get_providers()}")
-    
-    # 더미 데이터로 추론 실행
-    input_name = session.get_inputs()[0].name
-    test_data = np.random.randn(1, 3, 224, 224).astype(np.float32)
-    result = session.run(None, {input_name: test_data})
-    print("🔥 GPU 추론 성공!")
-except Exception as e:
-    print(f"❌ 실행 실패: {e}")
+# ONNX Runtime Provider 체크
+providers = ort.get_available_providers()
+print(f"ONNX Providers: {providers}")
 
-export LD_LIBRARY_PATH=/usr/lib/aarch64-linux-gnu:$LD_LIBRARY_PATH
+if 'TensorrtExecutionProvider' in providers:
+    print("✅ 환경 구성 완벽: TensorRT 준비 완료")
+else:
+    print("⚠️ 주의: TensorRT를 찾을 수 없습니다.")
