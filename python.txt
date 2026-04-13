@@ -1,29 +1,12 @@
-# 가상환경 활성화 상태에서 실행
-pip install torch torchvision --extra-index-url https://developer.download.nvidia.com/compute/redist/jp/v60
-
-pip uninstall numpy -y
+(venv) prlab@prlab-desktop:~/new_orin_project$ pip uninstall numpy -y
 pip install "numpy<2"
-
-# 1. 가상환경 탈출
-deactivate
-
-# 2. 호스트 시스템에 설치
-sudo pip3 install -U jetson-stats
-
-# 3. 서비스 재시작 (필요시)
-sudo systemctl restart jetson_stats.service
-
-# 4. 다시 가상환경 접속 후 설치
-cd ~/new_orin_project
-source venv/bin/activate
-pip install jetson-stats
-
-# 1. 넘파이 복구
-pip uninstall numpy -y
-pip install "numpy<2"
-
-# 2. 토치 재시도
-pip install https://developer.download.nvidia.com/compute/redist/jp/v60/pytorch/torch-2.3.0%2Bebedce2.nv24.03-cp310-cp310-linux_aarch64.whl
-
-# 3. 토치비전 (토치 설치 성공 후 실행)
-pip install torchvision==0.18.0
+Found existing installation: numpy 1.26.4
+Uninstalling numpy-1.26.4:
+  Successfully uninstalled numpy-1.26.4
+Collecting numpy<2
+  Using cached numpy-1.26.4-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.metadata (62 kB)
+Using cached numpy-1.26.4-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (14.2 MB)
+Installing collected packages: numpy
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+opencv-python 4.13.0.92 requires numpy>=2; python_version >= "3.9", but you have numpy 1.26.4 which is incompatible.
+Successfully installed numpy-1.26.4
