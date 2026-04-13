@@ -1,17 +1,15 @@
-import torch
-
-# 아주 간단한 Conv 레이어 모델 생성
-class SimpleModel(torch.nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.conv = torch.nn.Conv2d(1, 1, 3, padding=1)
-    def forward(self, x):
-        return self.conv(x)
-
-model = SimpleModel().cuda().half() # FP16 가속 적용
-dummy_input = torch.randn(1, 1, 480, 640).cuda().half()
-
-# ONNX 파일로 내보내기
-torch.onnx.export(model, dummy_input, "xfeat_fp16.onnx", 
-                  input_names=['input'], output_names=['output'])
-print("✅ 임시 테스트 모델 'xfeat_fp16.onnx' 생성 완료!")
+(venv) prlab@prlab-desktop:~/new_orin_project$ python3 make_model.py
+/home/prlab/new_orin_project/make_model.py:15: DeprecationWarning: You are using the legacy TorchScript-based ONNX export. Starting in PyTorch 2.9, the new torch.export-based ONNX exporter will be the default. To switch now, set dynamo=True in torch.onnx.export. This new exporter supports features like exporting LLMs with DynamicCache. We encourage you to try it and share feedback to help improve the experience. Learn more about the new export logic: https://pytorch.org/docs/stable/onnx_dynamo.html. For exporting control flow: https://pytorch.org/tutorials/beginner/onnx/export_control_flow_model_to_onnx_tutorial.html.
+  torch.onnx.export(model, dummy_input, "xfeat_fp16.onnx",
+Traceback (most recent call last):
+  File "/home/prlab/new_orin_project/make_model.py", line 15, in <module>
+    torch.onnx.export(model, dummy_input, "xfeat_fp16.onnx", 
+  File "/home/prlab/new_orin_project/venv/lib/python3.10/site-packages/torch/onnx/__init__.py", line 408, in export
+    export(
+  File "/home/prlab/new_orin_project/venv/lib/python3.10/site-packages/torch/onnx/utils.py", line 522, in export
+    _export(
+  File "/home/prlab/new_orin_project/venv/lib/python3.10/site-packages/torch/onnx/utils.py", line 1530, in _export
+    proto = onnx_proto_utils._add_onnxscript_fn(
+  File "/home/prlab/new_orin_project/venv/lib/python3.10/site-packages/torch/onnx/_internal/onnx_proto_utils.py", line 191, in _add_onnxscript_fn
+    model_proto = onnx.load_model_from_string(model_bytes)  # type: ignore[attr-defined]
+AttributeError: module 'onnx' has no attribute 'load_model_from_string
